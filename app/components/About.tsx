@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
+import { img } from "../lib/basePath";
 
 const ALL_IMAGES = [
   "IMG_6534.jpg","IMG_6535.jpg","IMG_6536.jpg","IMG_6793.jpg","IMG_6805.jpg",
@@ -76,7 +77,7 @@ export default function About() {
           <div className="relative h-96 md:h-[520px]">
             <div className="absolute top-0 left-0 w-64 h-64 rounded-2xl overflow-hidden shadow-xl">
               <Image
-                src={`/images/products/${img1}`}
+                src={img(`/images/products/${img1}`)}
                 alt="Proceso tufting"
                 fill
                 className="object-cover"
@@ -84,7 +85,7 @@ export default function About() {
             </div>
             <div className="absolute bottom-0 right-0 w-56 h-56 rounded-2xl overflow-hidden shadow-xl border-4 border-cream">
               <Image
-                src={`/images/products/${img2}`}
+                src={img(`/images/products/${img2}`)}
                 alt="Alfombra terminada"
                 fill
                 className="object-cover"
@@ -92,7 +93,7 @@ export default function About() {
             </div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full overflow-hidden shadow-2xl border-4 border-white">
               <Image
-                src="/images/logo/logo.jpg"
+                src={img("/images/logo/logo.jpg")}
                 alt="TuftForest GT Logo"
                 fill
                 className="object-cover"

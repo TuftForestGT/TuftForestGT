@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { img } from "../lib/basePath";
 
 export default function Footer() {
   return (
@@ -6,7 +7,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 relative rounded-full overflow-hidden border border-forest-700">
-            <Image src="/images/logo/logo.jpg" alt="TuftForest GT" fill className="object-cover" />
+            <Image src={img("/images/logo/logo.jpg")} alt="TuftForest GT" fill className="object-cover" />
           </div>
           <div>
             <div className="text-white font-bold" style={{ fontFamily: "Georgia, serif" }}>

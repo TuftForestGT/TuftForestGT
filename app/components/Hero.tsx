@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
+import { img as withBase } from "../lib/basePath";
 
 const ALL_IMAGES = [
   "IMG_6534.jpg","IMG_6535.jpg","IMG_6536.jpg","IMG_6793.jpg","IMG_6805.jpg",
@@ -55,7 +56,7 @@ export default function Hero() {
         {bgImages.map((img, i) => (
           <div key={i} className="relative overflow-hidden">
             <Image
-              src={`/images/products/${img}`}
+              src={withBase(`/images/products/${img}`)}
               alt=""
               fill
               className="object-cover scale-110"
@@ -86,7 +87,7 @@ export default function Hero() {
         <div className="flex justify-center mb-6">
           <div className="w-24 h-24 relative rounded-full overflow-hidden border-4 border-white/60 shadow-2xl">
             <Image
-              src="/images/logo/logo.jpg"
+              src={withBase("/images/logo/logo.jpg")}
               alt="TuftForest GT"
               fill
               className="object-cover"

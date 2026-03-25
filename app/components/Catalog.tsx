@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
+import { img as withBase } from "../lib/basePath";
 
 const ALL_IMAGES = [
   "IMG_6534.jpg","IMG_6535.jpg","IMG_6536.jpg","IMG_6793.jpg","IMG_6805.jpg",
@@ -73,7 +74,7 @@ export default function Catalog() {
               className="relative aspect-square overflow-hidden rounded-xl group shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
               <Image
-                src={`/images/products/${img}`}
+                src={withBase(`/images/products/${img}`)}
                 alt="Alfombra TuftForest GT"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -148,7 +149,7 @@ export default function Catalog() {
           <div className="relative max-w-4xl max-h-full w-full h-full flex items-center justify-center">
             <Image
               key={selected}
-              src={`/images/products/${selected}`}
+              src={withBase(`/images/products/${selected}`)}
               alt="Alfombra TuftForest GT"
               width={900}
               height={900}

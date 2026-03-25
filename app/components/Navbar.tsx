@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { img } from "../lib/basePath";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -34,7 +35,7 @@ export default function Navbar() {
         <Link href="#inicio" className="flex items-center gap-3">
           <div className={`w-10 h-10 relative rounded-full overflow-hidden border-2 transition-colors duration-300 ${scrolled ? "border-forest-600" : "border-white/80"}`}>
             <Image
-              src="/images/logo/logo.jpg"
+              src={img("/images/logo/logo.jpg")}
               alt="TuftForest GT Logo"
               fill
               className="object-cover"
