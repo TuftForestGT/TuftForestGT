@@ -3,25 +3,31 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --forest-bg: #f5f0e8;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--forest-bg);
+  color: #1e2d1e;
+  font-family: system-ui, sans-serif;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@layer components {
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold text-forest-800 mb-4;
+    font-family: Georgia, serif;
+  }
+  .section-subtitle {
+    @apply text-forest-600 text-lg max-w-2xl mx-auto mb-12;
+  }
+  .btn-primary {
+    @apply bg-forest-700 hover:bg-forest-800 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center gap-2;
+  }
+  .btn-outline {
+    @apply border-2 border-forest-700 text-forest-700 hover:bg-forest-700 hover:text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 inline-flex items-center gap-2;
   }
 }
