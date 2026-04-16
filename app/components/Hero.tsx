@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { img as withBase } from "../lib/basePath";
 
@@ -44,7 +44,11 @@ function pickRandom(arr: string[], n: number): string[] {
 }
 
 export default function Hero() {
-  const bgImages = useMemo(() => pickRandom(ALL_IMAGES, 6), []);
+  const [bgImages, setBgImages] = useState(() => ALL_IMAGES.slice(0, 6));
+
+  useEffect(() => {
+    setBgImages(pickRandom(ALL_IMAGES, 6));
+  }, []);
 
   return (
     <section

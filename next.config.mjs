@@ -2,7 +2,7 @@
 const nextConfig = {
   output: 'export',
   trailingSlash: true,
-  basePath: '/TuftForestGT',
+  basePath: process.env.NODE_ENV === 'production' ? '/TuftForestGT' : '',
   images: {
     unoptimized: true,
   },

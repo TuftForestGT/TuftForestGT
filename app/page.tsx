@@ -1,5 +1,6 @@
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
+import FeaturedCarousel from "./components/FeaturedCarousel";
 import Catalog from "./components/Catalog";
 import About from "./components/About";
 import Contact from "./components/Contact";
@@ -11,6 +12,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <FeaturedCarousel />
         <Catalog />
         <About />
         <Contact />
