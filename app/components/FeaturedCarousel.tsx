@@ -1,57 +1,53 @@
-"use client";
-
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
-import Image from "next/image";
 import { img as withBase } from "../lib/basePath";
 
 const FEATURED = [
-  "IMG_8870.webp",
-  "IMG_8575.webp",
-  "IMG_8875.webp",
-  "IMG_8559.webp",
-  "IMG_8740.webp",
-  "IMG_8884.webp",
-  "IMG_8913.webp",
-  "IMG_8597.webp",
-  "IMG_8550.webp",
-  "IMG_8922.webp",
-  "IMG_8537.webp",
-  "IMG_8675.webp",
+  "IMG_0038.webp",
+  "IMG_0106.webp",
+  "IMG_0123(1).webp",
+  "IMG_0152.webp",
+  "IMG_0295.webp",
+  "IMG_0357.webp",
+  "IMG_0420.webp",
+  "IMG_0421.webp",
+  "IMG_0422.webp",
+  "IMG_0423.webp",
 ];
 
 export default function FeaturedCarousel() {
-  const [emblaRef] = useEmblaCarousel(
-    { loop: true, align: "start", dragFree: true },
-    [Autoplay({ delay: 3000, stopOnInteraction: false })]
-  );
+  const mid = Math.ceil(FEATURED.length / 2);
+  const rowA = FEATURED.slice(0, mid);
+  const rowB = FEATURED.slice(mid);
 
   return (
-    <section className="py-20 bg-cream">
-      <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
-        <p className="text-forest-500 uppercase tracking-widest text-sm mb-2">
-          Lo Más Reciente
-        </p>
-        <h2 className="section-title">Últimas Creaciones</h2>
-        <p className="section-subtitle">
-          Piezas recién terminadas — cada una única, tejida a mano.
-        </p>
+    <section className="featured-section">
+      <div className="featured-head">
+        <p className="featured-kicker">Recién salidas del telar</p>
+        <h2 className="featured-title">Lo nuevo, de un vistazo</h2>
       </div>
 
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-4 pl-6">
-          {FEATURED.map((img) => (
-            <div
-              key={img}
-              className="relative flex-[0_0_260px] md:flex-[0_0_320px] h-80 rounded-2xl overflow-hidden shadow-lg flex-shrink-0"
-            >
-              <Image
+      <div className="featured-marquee">
+        <div className="featured-row featured-row--left">
+          {[...rowA, ...rowA].map((img, i) => (
+            <div className="featured-slide" key={`a-${img}-${i}`}>
+              <img
                 src={withBase(`/images/products/${img}`)}
-                alt="Alfombra destacada TuftForest GT"
-                fill
-                className="object-cover hover:scale-105 transition-transform duration-700"
+                alt="Pieza tejida a mano de TuftForest GT"
+                loading="lazy"
+                decoding="async"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-forest-950/40 to-transparent" />
+            </div>
+          ))}
+        </div>
+
+        <div className="featured-row featured-row--right">
+          {[...rowB, ...rowB].map((img, i) => (
+            <div className="featured-slide" key={`b-${img}-${i}`}>
+              <img
+                src={withBase(`/images/products/${img}`)}
+                alt="Pieza tejida a mano de TuftForest GT"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           ))}
         </div>

@@ -38,16 +38,34 @@ const ALL_IMAGES = [
   "IMG_8311.jpg","IMG_8312.jpg",
 ];
 
+const COLLAGE_CARDS = [
+  { t: "6%", l: "3%", w: 170, r: -6, d: 0 },
+  { t: "10%", l: "76%", w: 150, r: 5, d: 1 },
+  { t: "30%", l: "14%", w: 140, r: 4, d: 2 },
+  { t: "26%", l: "84%", w: 130, r: -5, d: 3 },
+  { t: "54%", l: "4%", w: 160, r: 3, d: 4 },
+  { t: "60%", l: "70%", w: 175, r: -4, d: 5 },
+  { t: "70%", l: "30%", w: 135, r: 6, d: 6 },
+  { t: "74%", l: "55%", w: 145, r: -3, d: 7 },
+  { t: "42%", l: "44%", w: 120, r: 2, d: 8 },
+  { t: "16%", l: "44%", w: 125, r: -2, d: 9 },
+  { t: "84%", l: "85%", w: 130, r: 5, d: 10 },
+];
+
 function pickRandom(arr: string[], n: number): string[] {
   const shuffled = [...arr].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, n);
 }
 
 export default function Hero() {
-  const [bgImages, setBgImages] = useState(() => ALL_IMAGES.slice(0, 6));
+  // SSR-safe: deterministic on first render, shuffled after mount so the
+  // floating cards show different pieces on each visit.
+  const [cardImages, setCardImages] = useState(() =>
+    ALL_IMAGES.slice(0, COLLAGE_CARDS.length)
+  );
 
   useEffect(() => {
-    setBgImages(pickRandom(ALL_IMAGES, 6));
+    setCardImages(pickRandom(ALL_IMAGES, COLLAGE_CARDS.length));
   }, []);
 
   return (
@@ -55,16 +73,25 @@ export default function Hero() {
       id="inicio"
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Background collage */}
-      <div className="absolute inset-0 grid grid-cols-3 grid-rows-2">
-        {bgImages.map((img, i) => (
-          <div key={i} className="relative overflow-hidden">
+      {/* Background: floating product cards (el bosque del logo) */}
+      <div className="hero-collage" aria-hidden="true">
+        {COLLAGE_CARDS.map((p, i) => (
+          <div
+            className="hero-collage__card"
+            key={i}
+            style={{
+              top: p.t,
+              left: p.l,
+              width: `${p.w}px`,
+              ["--rot" as string]: `${p.r}deg`,
+              ["--d" as string]: p.d,
+            }}
+          >
             <Image
-              src={withBase(`/images/products/${img}`)}
+              src={withBase(`/images/products/${cardImages[i]}`)}
               alt=""
               fill
-              className="object-cover scale-110"
-              priority={i < 3}
+              sizes="180px"
             />
           </div>
         ))}
