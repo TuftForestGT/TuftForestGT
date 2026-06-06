@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { img as withBase } from "../lib/basePath";
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
@@ -187,6 +186,106 @@ const ALL_IMAGES = [
   "IMG_8925.webp",
   "IMG_8928.webp",
   "IMG_8929.webp",
+  "IMG_0033.webp",
+  "IMG_0034.webp",
+  "IMG_0037.webp",
+  "IMG_0038.webp",
+  "IMG_0040.webp",
+  "IMG_0041.webp",
+  "IMG_0043.webp",
+  "IMG_0046.webp",
+  "IMG_0048.webp",
+  "IMG_0049.webp",
+  "IMG_0051.webp",
+  "IMG_0052.webp",
+  "IMG_0053.webp",
+  "IMG_0105.webp",
+  "IMG_0106.webp",
+  "IMG_0108(1).webp",
+  "IMG_0108.webp",
+  "IMG_0109(1).webp",
+  "IMG_0109.webp",
+  "IMG_0113(1).webp",
+  "IMG_0113.webp",
+  "IMG_0119(1).webp",
+  "IMG_0119.webp",
+  "IMG_0120.webp",
+  "IMG_0123(1).webp",
+  "IMG_0123.webp",
+  "IMG_0124(1).webp",
+  "IMG_0124.webp",
+  "IMG_0125(1).webp",
+  "IMG_0125.webp",
+  "IMG_0126(1).webp",
+  "IMG_0126.webp",
+  "IMG_0127(1).webp",
+  "IMG_0127.webp",
+  "IMG_0132.webp",
+  "IMG_0133.webp",
+  "IMG_0137(1).webp",
+  "IMG_0137.webp",
+  "IMG_0140.webp",
+  "IMG_0141.webp",
+  "IMG_0142(1).webp",
+  "IMG_0142.webp",
+  "IMG_0143.webp",
+  "IMG_0144.webp",
+  "IMG_0147(1).webp",
+  "IMG_0147.webp",
+  "IMG_0148.webp",
+  "IMG_0149.webp",
+  "IMG_0150.webp",
+  "IMG_0152.webp",
+  "IMG_0153(1).webp",
+  "IMG_0153.webp",
+  "IMG_0154.webp",
+  "IMG_0156.webp",
+  "IMG_0157(1).webp",
+  "IMG_0157.webp",
+  "IMG_0158(1).webp",
+  "IMG_0158.webp",
+  "IMG_0159(1).webp",
+  "IMG_0159.webp",
+  "IMG_0289.webp",
+  "IMG_0290.webp",
+  "IMG_0291.webp",
+  "IMG_0293.webp",
+  "IMG_0294.webp",
+  "IMG_0295.webp",
+  "IMG_0296.webp",
+  "IMG_0297.webp",
+  "IMG_0298.webp",
+  "IMG_0308.webp",
+  "IMG_0309.webp",
+  "IMG_0311.webp",
+  "IMG_0312.webp",
+  "IMG_0313.webp",
+  "IMG_0315.webp",
+  "IMG_0319.webp",
+  "IMG_0320.webp",
+  "IMG_0324.webp",
+  "IMG_0329.webp",
+  "IMG_0334.webp",
+  "IMG_0335.webp",
+  "IMG_0336.webp",
+  "IMG_0337.webp",
+  "IMG_0338.webp",
+  "IMG_0340.webp",
+  "IMG_0341.webp",
+  "IMG_0342.webp",
+  "IMG_0345.webp",
+  "IMG_0346.webp",
+  "IMG_0352.webp",
+  "IMG_0354.webp",
+  "IMG_0355.webp",
+  "IMG_0357.webp",
+  "IMG_0420.webp",
+  "IMG_0421.webp",
+  "IMG_0422.webp",
+  "IMG_0423.webp",
+  "IMG_0426.webp",
+  "IMG_0427.webp",
+  "IMG_0428.webp",
 ];
 
 const PAGE_SIZE = 18;
@@ -231,38 +330,30 @@ export default function Catalog() {
           ))}
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
+        {/* Masonry grid: real proportions, click any piece to view it large */}
+        <div className="catalog-masonry">
           {shown.map((img, i) => (
             <button
               key={img}
               onClick={() => setLightboxIndex(i)}
-              className="relative aspect-square overflow-hidden rounded-lg group shadow-sm hover:shadow-lg transition-all duration-300"
+              className="catalog-item"
+              aria-label="Ver alfombra en grande"
             >
-              <Image
+              <img
                 src={withBase(`/images/products/${img}`)}
                 alt="Alfombra TuftForest GT"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+                decoding="async"
+                className="catalog-item__img"
               />
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-forest-950/0 group-hover:bg-forest-950/50 transition-all duration-300 flex flex-col items-center justify-end pb-3 gap-1">
-                <span className="text-white text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-forest-700 px-3 py-1 rounded-full">
-                  Ver más
-                </span>
-                <a
-                  href="https://www.instagram.com/tuftforest_gt"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white text-forest-800 text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1 hover:bg-forest-100"
-                >
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                  </svg>
-                  Pedir este
-                </a>
-              </div>
+              <span className="catalog-item__view" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="7" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  <line x1="11" y1="8" x2="11" y2="14" />
+                  <line x1="8" y1="11" x2="14" y2="11" />
+                </svg>
+              </span>
             </button>
           ))}
         </div>
