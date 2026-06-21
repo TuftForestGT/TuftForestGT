@@ -164,9 +164,17 @@ export default function CalculadoraClient() {
   const imgRef    = useRef<HTMLImageElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-
+  const selRef    = useRef(sel)
   const zoom  = ZOOM_LEVELS[zoomIdx]
+  const zoomRef   = useRef(zoom)
+  const dragRef   = useRef<DragState | null>(null)
+
+
   const ratio = sel.w / sel.h
+
+  useEffect(() => { selRef.current  = sel  }, [sel])
+  useEffect(() => { zoomRef.current = zoom }, [zoom])
+  useEffect(() => { dragRef.current = drag }, [drag])
 
   // Load/save prices from localStorage
   useEffect(() => {
@@ -231,6 +239,32 @@ export default function CalculadoraClient() {
     }
     el.addEventListener('wheel', onWheel, { passive: false })
     return () => el.removeEventListener('wheel', onWheel)
+  }, [imageSrc])
+
+  // Prevent page scroll on mobile when touching a handle or mid-drag
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || !imageSrc) return
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return
+      const t = e.touches[0]
+      const r = canvas.getBoundingClientRect()
+      const x = (t.clientX - r.left) * (canvas.width  / r.width)
+      const y = (t.clientY - r.top)  * (canvas.height / r.height)
+      if (getHandle(selRef.current, x, y, zoomRef.current)) e.preventDefault()
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (dragRef.current) e.preventDefault()
+    }
+
+    canvas.addEventListener('touchstart', onTouchStart, { passive: false })
+    canvas.addEventListener('touchmove',  onTouchMove,  { passive: false })
+    return () => {
+      canvas.removeEventListener('touchstart', onTouchStart)
+      canvas.removeEventListener('touchmove',  onTouchMove)
+    }
   }, [imageSrc])
 
   const getPos = useCallback((e: React.PointerEvent) => {
@@ -375,24 +409,24 @@ export default function CalculadoraClient() {
       </header>
 
       {/* ── Body ─────────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
 
-        {/* ── Left: image canvas ───────────────────────────── */}
-        <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#060a07' }}>
+        {/* ── Top/Left: image canvas ───────────────────────── */}
+        <div className="h-[42vh] md:h-auto md:flex-1 flex flex-col overflow-hidden" style={{ background: '#060a07' }}>
           {!imageSrc ? (
-            <label className="flex-1 flex flex-col items-center justify-center cursor-pointer m-5 rounded-2xl transition-all"
+            <label className="flex-1 flex flex-col items-center justify-center cursor-pointer m-4 md:m-5 rounded-2xl transition-all"
               style={{ border: `1.5px dashed ${BORDER}` }}
               onDragOver={e => e.preventDefault()}
               onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f?.type.startsWith('image/')) loadFile(f) }}>
-              <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5"
+              <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-3 md:mb-5"
                 style={{ background: CARD, border: `1px solid ${BORDER}` }}>
-                <svg className="w-9 h-9" style={{ color: ACCENTD }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-7 h-7 md:w-9 md:h-9" style={{ color: ACCENTD }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <p className="text-base font-semibold mb-2" style={{ color: CREAM }}>Subí el diseño del cliente</p>
-              <p className="text-xs mb-4" style={{ color: MUTED }}>Arrastrá o hacé clic · JPG · PNG · WEBP</p>
+              <p className="text-sm md:text-base font-semibold mb-1 md:mb-2" style={{ color: CREAM }}>Subí el diseño del cliente</p>
+              <p className="text-xs mb-3 md:mb-4 hidden md:block" style={{ color: MUTED }}>Arrastrá o hacé clic · JPG · PNG · WEBP</p>
               <span className="px-4 py-2 rounded-xl text-xs font-bold"
                 style={{ background: ACCENTD, color: ACCENT, border: `1px solid ${ACCENT}33` }}>
                 Seleccionar archivo
@@ -406,11 +440,11 @@ export default function CalculadoraClient() {
                 <div className="relative inline-block">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img ref={imgRef} src={imageSrc} alt="diseño" draggable={false}
-                    className="block rounded-lg"
-                    style={{ maxHeight: '90vh', display: 'block', userSelect: 'none', pointerEvents: 'none' }}
+                    className="block rounded-lg max-h-[36vh] md:max-h-[90vh]"
+                    style={{ display: 'block', userSelect: 'none', pointerEvents: 'none' }}
                     onLoad={handleImageLoad} />
                   <canvas ref={canvasRef} className="absolute inset-0 rounded-lg"
-                    style={{ cursor, width: '100%', height: '100%' }}
+                    style={{ cursor, width: '100%', height: '100%', touchAction: 'none' }}
                     onPointerDown={onPointerDown} onPointerMove={onPointerMove}
                     onPointerUp={onPointerUp} onPointerLeave={onPointerUp} />
                 </div>
@@ -419,9 +453,9 @@ export default function CalculadoraClient() {
           )}
         </div>
 
-        {/* ── Right: sidebar ───────────────────────────────── */}
-        <aside className="flex-shrink-0 flex flex-col overflow-hidden"
-          style={{ width: 292, background: PANEL, borderLeft: `1px solid ${BORDER}` }}>
+        {/* ── Bottom/Right: sidebar ────────────────────────── */}
+        <aside className="flex-1 md:flex-none md:w-[292px] flex flex-col overflow-hidden border-t md:border-t-0 md:border-l"
+          style={{ background: PANEL, borderColor: BORDER }}>
 
           {/* Tabs */}
           <div className="flex flex-shrink-0 gap-1 p-2"
@@ -471,7 +505,9 @@ export default function CalculadoraClient() {
                     style={{ background: CARD2, color: CREAM, border: `1px solid ${BORDER}` }}>+
                   </button>
                 </div>
-                <p className="text-center text-xs" style={{ color: SUBTLE }}>{zoom}× — Ctrl+scroll</p>
+                <p className="text-center text-xs" style={{ color: SUBTLE }}>
+                  {zoom}×<span className="hidden md:inline"> — Ctrl+scroll</span>
+                </p>
                 {imageSrc && (
                   <button onClick={() => { setImageSrc(null); setInputVal('') }}
                     className="w-full mt-3 py-2 rounded-xl text-xs font-semibold transition-all"
