@@ -9,9 +9,9 @@ Landing page / product catalog for **TuftForest GT** — a Guatemalan handmade t
 ## Commands
 
 ```bash
-npm run dev      # Development server (localhost:3000)
-npm run build    # Static export → out/
-npm run lint     # ESLint
+pnpm dev      # Development server (localhost:3000)
+pnpm build    # Static export → out/
+pnpm lint     # ESLint
 ```
 
 ## Deployment
