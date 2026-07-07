@@ -115,7 +115,7 @@ const GOLD   = '#d4a853'
 const LS_KEY = 'tuftforest-precios'
 
 interface Precios {
-  lana: string; tela: string; anti: string; pega: string; ganancia: string
+  lanaNacional: string; lanaImportada: string; tela: string; anti: string; pega: string; ganancia: string
 }
 
 function PriceInput({ label, prefix, suffix, value, onChange }: {
@@ -153,9 +153,11 @@ export default function CalculadoraClient() {
   const [diametro, setDiametro]   = useState('')
   const [costoAlto,  setCostoAlto]  = useState('')
   const [costoAncho, setCostoAncho] = useState('')
+  const [copiado, setCopiado] = useState(false)
 
   // Cost inputs (defaults usados si localStorage no tiene nada)
-  const [precioLana, setPrecioLana] = useState('27')
+  const [precioLanaNacional,   setPrecioLanaNacional]   = useState('13')
+  const [precioLanaImportada, setPrecioLanaImportada] = useState('27')
   const [precioTela, setPrecioTela] = useState('27')
   const [precioAnti, setPrecioAnti] = useState('38')
   const [precioPega, setPrecioPega] = useState('350')
@@ -182,7 +184,8 @@ export default function CalculadoraClient() {
       const raw = localStorage.getItem(LS_KEY)
       if (raw) {
         const d: Precios = JSON.parse(raw)
-        if (d.lana)     setPrecioLana(d.lana)
+        if (d.lanaNacional)   setPrecioLanaNacional(d.lanaNacional)
+        if (d.lanaImportada)  setPrecioLanaImportada(d.lanaImportada)
         if (d.tela)     setPrecioTela(d.tela)
         if (d.anti)     setPrecioAnti(d.anti)
         if (d.pega)     setPrecioPega(d.pega)
@@ -194,10 +197,11 @@ export default function CalculadoraClient() {
   useEffect(() => {
     try {
       localStorage.setItem(LS_KEY, JSON.stringify({
-        lana: precioLana, tela: precioTela, anti: precioAnti, pega: precioPega, ganancia
+        lanaNacional: precioLanaNacional, lanaImportada: precioLanaImportada,
+        tela: precioTela, anti: precioAnti, pega: precioPega, ganancia
       }))
     } catch { /* ignore */ }
-  }, [precioLana, precioTela, precioAnti, precioPega, ganancia])
+  }, [precioLanaNacional, precioLanaImportada, precioTela, precioAnti, precioPega, ganancia])
 
   // Canvas
   useEffect(() => {
@@ -336,23 +340,73 @@ export default function CalculadoraClient() {
   const ovillos = bboxCm2 > 0 ? Math.ceil(bboxCm2 / 500) : 0
 
   // Prices
-  const pL = parseFloat(precioLana) || 0
+  const pLN = parseFloat(precioLanaNacional)  || 0
+  const pLI = parseFloat(precioLanaImportada) || 0
   const pT = parseFloat(precioTela) || 0
   const pA = parseFloat(precioAnti) || 0
   const pP = parseFloat(precioPega) || 0
   const pG = parseFloat(ganancia)   || 0
 
   // Costs
-  const costoLana   = ovillos * pL
+  const costoLanaNacional   = ovillos * pLN
+  const costoLanaImportada  = ovillos * pLI
   const costoTela   = telaM2  * pT
   const costoAnti   = antiM2  * pA
   const costoPega   = pP * 0.35 * telaM2
-  const costoTotal  = costoLana + costoTela + costoAnti + costoPega
-  const gananciaQ   = costoTotal * (pG / 100)
-  const precioFinal = costoTotal + gananciaQ
+  const costoBase        = costoTela + costoAnti + costoPega
+  const costoTotalNacional  = costoLanaNacional  + costoBase
+  const costoTotalImportada = costoLanaImportada + costoBase
+  const gananciaQNacional   = costoTotalNacional  * (pG / 100)
+  const gananciaQImportada  = costoTotalImportada * (pG / 100)
+  const precioFinalNacional  = costoTotalNacional  + gananciaQNacional
+  const precioFinalImportada = costoTotalImportada + gananciaQImportada
 
   const hasDims = forma === 'redonda' ? diamC > 0 : altoC > 0 && anchoC > 0
-  const hasCosts = pL > 0 || pT > 0 || pA > 0 || pP > 0
+  const hasCosts = pLN > 0 || pLI > 0 || pT > 0 || pA > 0 || pP > 0
+
+  const copiarCotizacion = useCallback(async () => {
+    const medidasTxt = forma === 'redonda'
+      ? `${fmt(diamC, 1)} cm de diámetro`
+      : `${fmt(anchoC, 1)} cm de ancho × ${fmt(altoC, 1)} cm de alto`
+
+    let idx = 1
+    const opciones: string[] = []
+    if (pLI > 0) { opciones.push(`Opción ${idx} 🧶 – Lana importada\n💰 Precio: ${fmtQ(precioFinalImportada)}`); idx++ }
+    if (pLN > 0) { opciones.push(`Opción ${idx} 🇬🇹 – Lana nacional (100% guatemalteca)\n💰 Precio: ${fmtQ(precioFinalNacional)}`); idx++ }
+
+    const mensaje = `¡Hola! 😊✨
+
+Gracias por comunicarte con TuftForest 🧵💚. Te compartimos la cotización de tu alfombra personalizada:
+
+📏 Medidas: ${medidasTxt}
+
+${opciones.join('\n\n')}
+
+✨ Todas nuestras alfombras son elaboradas de forma artesanal y totalmente personalizadas según el diseño que nos compartas.
+
+Forma de pago:
+• 50% de anticipo para agendar el espacio de fabricación e iniciar la elaboración.
+• 50% restante al momento de la entrega.
+
+📦 Realizamos envíos a toda Guatemala.
+
+Si tienes alguna consulta o deseas realizar algún ajuste en las medidas o el diseño, con gusto te ayudaremos. ¡Será un gusto crear tu alfombra! 💚`
+
+    try {
+      await navigator.clipboard.writeText(mensaje)
+    } catch {
+      const ta = document.createElement('textarea')
+      ta.value = mensaje
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.focus(); ta.select()
+      try { document.execCommand('copy') } catch { /* ignore */ }
+      document.body.removeChild(ta)
+    }
+    setCopiado(true)
+    setTimeout(() => setCopiado(false), 2000)
+  }, [forma, diamC, anchoC, altoC, pLI, pLN, precioFinalImportada, precioFinalNacional])
 
   const MAX  = SLIDER_MAX[unit]
   const STEP = SLIDER_STEP[unit]
@@ -640,8 +694,10 @@ export default function CalculadoraClient() {
                 {secLabel('Precios de insumos')}
                 <p className="text-xs mb-3" style={{ color: SUBTLE }}>Se guardan automáticamente</p>
                 <div className="space-y-2.5">
-                  <PriceInput label="Ovillo de lana 100g" prefix="Q" suffix="/ovillo"
-                    value={precioLana} onChange={setPrecioLana} />
+                  <PriceInput label="Ovillo de lana nacional 100g" prefix="Q" suffix="/ovillo"
+                    value={precioLanaNacional} onChange={setPrecioLanaNacional} />
+                  <PriceInput label="Ovillo de lana importada 100g" prefix="Q" suffix="/ovillo"
+                    value={precioLanaImportada} onChange={setPrecioLanaImportada} />
                   <PriceInput label="Tela de monje" prefix="Q" suffix="/m²"
                     value={precioTela} onChange={setPrecioTela} />
                   <PriceInput label="Antideslizante" prefix="Q" suffix="/m²"
@@ -674,7 +730,8 @@ export default function CalculadoraClient() {
                   {secLabel('Materiales')}
                   <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${BORDER}` }}>
                     {[
-                      { icon: '🧶', label: 'Lana (ovillos 100g)', qty: `${ovillos} ovillos`, costo: costoLana, show: pL > 0, color: '#c084fc' },
+                      { icon: '🧶', label: 'Lana nacional (ovillos 100g)',  qty: `${ovillos} ovillos`, costo: costoLanaNacional,  show: pLN > 0, color: '#c084fc' },
+                      { icon: '🧶', label: 'Lana importada (ovillos 100g)', qty: `${ovillos} ovillos`, costo: costoLanaImportada, show: pLI > 0, color: '#e879f9' },
                       { icon: '🪢', label: 'Tela de monje',       qty: `${telaM2.toFixed(2)} m²`, costo: costoTela, show: pT > 0, color: '#60a5fa' },
                       { icon: '⬛', label: 'Antideslizante',      qty: `${antiM2.toFixed(2)} m²`, costo: costoAnti, show: pA > 0, color: '#94a3b8' },
                       { icon: '🪣', label: 'Pegamento',           qty: `${(telaM2 * 0.35).toFixed(3)} kg est.`, costo: costoPega, show: pP > 0, color: '#fb923c' },
@@ -701,30 +758,33 @@ export default function CalculadoraClient() {
 
               {/* Resumen */}
               {hasDims && hasCosts && (
-                <div className="p-4 flex-1">
+                <div className="p-4 flex-1 space-y-3">
                   {secLabel('Precio de venta')}
-                  <div className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${BORDER}` }}>
-                    <div className="p-4 space-y-2.5" style={{ background: CARD }}>
-                      <Row label="Materiales" val={fmtQ(costoTotal)} />
-                      <Row label={`Ganancia ${ganancia}%`} val={fmtQ(gananciaQ)} accent />
-                    </div>
-                    <div className="px-5 py-5 text-center relative overflow-hidden"
-                      style={{ background: `linear-gradient(135deg, #1a3d1c 0%, #0f2210 100%)` }}>
-                      <div className="absolute inset-0"
-                        style={{ background: `radial-gradient(ellipse at 50% 0%, ${ACCENT}22, transparent 70%)` }} />
-                      <p className="text-xs font-bold uppercase tracking-widest mb-1 relative" style={{ color: ACCENT }}>
-                        Precio mínimo sugerido
-                      </p>
-                      <p className="font-display font-bold leading-none relative" style={{ color: GOLD, fontSize: 38 }}>
-                        {fmtQ(precioFinal)}
-                      </p>
-                      {costoTotal > 0 && (
-                        <p className="text-xs mt-2 relative" style={{ color: MUTED }}>
-                          ≈ USD {(precioFinal / 7.78).toFixed(2)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                  {pLN > 0 && (
+                    <PrecioCard
+                      titulo="Con lana nacional"
+                      materiales={costoTotalNacional}
+                      ganancia={gananciaQNacional}
+                      gananciaPct={ganancia}
+                      precioFinal={precioFinalNacional}
+                    />
+                  )}
+                  {pLI > 0 && (
+                    <PrecioCard
+                      titulo="Con lana importada"
+                      materiales={costoTotalImportada}
+                      ganancia={gananciaQImportada}
+                      gananciaPct={ganancia}
+                      precioFinal={precioFinalImportada}
+                    />
+                  )}
+                  <button onClick={copiarCotizacion}
+                    className="w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+                    style={copiado
+                      ? { background: ACCENTD, color: ACCENT, border: `1px solid ${ACCENT}` }
+                      : { background: ACCENT, color: '#fff' }}>
+                    {copiado ? '✅ ¡Copiado!' : '📋 Copiar cotización para el cliente'}
+                  </button>
                 </div>
               )}
 
@@ -736,6 +796,38 @@ export default function CalculadoraClient() {
             </div>
           )}
         </aside>
+      </div>
+    </div>
+  )
+}
+
+function PrecioCard({ titulo, materiales, ganancia, gananciaPct, precioFinal }: {
+  titulo: string; materiales: number; ganancia: number; gananciaPct: string; precioFinal: number
+}) {
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${BORDER}` }}>
+      <div className="px-4 pt-3 pb-2" style={{ background: CARD }}>
+        <p className="text-xs font-bold uppercase tracking-widest" style={{ color: MUTED }}>{titulo}</p>
+      </div>
+      <div className="px-4 pb-3 space-y-2.5" style={{ background: CARD }}>
+        <Row label="Materiales" val={fmtQ(materiales)} />
+        <Row label={`Ganancia ${gananciaPct}%`} val={fmtQ(ganancia)} accent />
+      </div>
+      <div className="px-5 py-5 text-center relative overflow-hidden"
+        style={{ background: `linear-gradient(135deg, #1a3d1c 0%, #0f2210 100%)` }}>
+        <div className="absolute inset-0"
+          style={{ background: `radial-gradient(ellipse at 50% 0%, ${ACCENT}22, transparent 70%)` }} />
+        <p className="text-xs font-bold uppercase tracking-widest mb-1 relative" style={{ color: ACCENT }}>
+          Precio mínimo sugerido
+        </p>
+        <p className="font-display font-bold leading-none relative" style={{ color: GOLD, fontSize: 32 }}>
+          {fmtQ(precioFinal)}
+        </p>
+        {materiales > 0 && (
+          <p className="text-xs mt-2 relative" style={{ color: MUTED }}>
+            ≈ USD {(precioFinal / 7.78).toFixed(2)}
+          </p>
+        )}
       </div>
     </div>
   )
